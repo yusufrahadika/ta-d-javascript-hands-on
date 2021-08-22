@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Simple Calculator</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-KyZXEAg3QhqLMpG8r+8fhAXLRk2vvoC2f3B09zVXn8CA5QIVfZOJ3BCsw2P0p/We"
+      crossorigin="anonymous"
+    />
+    <link href="index.css" rel="stylesheet" />
+  </head>
+  <body>
+    <div class="container">
+      <div id="content-wrapper">
+        <h1>Simple Calculator</h1>
+        <form id="calculator-form" onsubmit="calculatorSubmit(event)">
+          <div class="form-group">
+            <label for="inputNumber1">Angka 1</label>
+            <input
+              type="number"
+              class="form-control"
+              id="inputNumber1"
+              name="number1"
+              placeholder="Angka 1">
+          </div>
+          <div class="form-group">
+            <label for="inputOperator">Operator</label>
+            <select
+              id="inputOperator"
+              name="operator"
+              class="form-control"
+            >
+              <option value="sum">Sum (+)</option>
+              <option value="substract">Substract (-)</option>
+              <option value="multiply">Multiply (*)</option>
+              <option value="divide">Divide (/)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="inputNumber2">Angka 2</label>
+            <input
+              type="number"
+              class="form-control"
+              id="inputNumber2"
+              name="number2"
+              placeholder="Angka 2">
+          </div>
+          <button
+            id="calculator-submit"
+            type="submit"
+            class="btn btn-primary mb-2"
+          >
+            =
+          </button>
+          <div id="calculator-status"></div>
+          <div class="form-group">
+            <label for="result">Hasil</label>
+            <input
+              class="form-control"
+              id="result"
+              name="result"
+              disabled
+              placeholder="Hasil">
+          </div>
+        </form>
+      </div>
+    </div>
+    <script src="calculator.js"></script>
+    <script>
+      const calc = new Calculator();
+      const calcResult = document.getElementById('result');
+
+      function getResult(operator, a, b) {
+        calcResult.value = 'Mendapatkan hasil...';
+        calc.getResult(operator, a, b)
+          .then(function (result) {
+            calcResult.value = result;
+          })
+          .catch(function (err) {
+            calcResult.value = 'Error';
+            calcStatus.innerHTML = err.toString();
+          })
+      }
+
+      function calculatorSubmit(e) {
+        e.preventDefault();
+
+        const formValue = Object.fromEntries(new FormData(e.target));
+        getResult(
+          formValue['operator'],
+          Number(formValue['number1'] || 0),
+          Number(formValue['number2'] || 0),
+        );
+
+        return false;
+      }
+    </script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-U1DAWAznBHeqEIlVSCgzq+c9gqGAJn5c/t99JyeKa9xxaYpSvHU5awsuZVVFIhvj"
+      crossorigin="anonymous"
+    ></script>
+  </body>
+</html>
