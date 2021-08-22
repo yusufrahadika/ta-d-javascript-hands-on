@@ -81,9 +81,8 @@
             calcResult.value = result;
           })
           .catch(function (err) {
-            calcResult.value = 'Error';
-            calcStatus.innerHTML = err.toString();
-          })
+            calcResult.value = `Error: ${err.toString()}`;
+          });
       }
 
       function calculatorSubmit(e) {
