@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Temperature Converter</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-KyZXEAg3QhqLMpG8r+8fhAXLRk2vvoC2f3B09zVXn8CA5QIVfZOJ3BCsw2P0p/We"
+      crossorigin="anonymous"
+    />
+    <link href="index.css" rel="stylesheet" />
+  </head>
+  <body>
+    <div class="container">
+      <div id="content-wrapper">
+        <h1>Temperature Converter</h1>
+        <form
+          id="temperature-converter-form"
+          onsubmit="temperatureConvertSubmit(event)"
+        >
+          <div class="form-group">
+            <label for="input-mode">Input Mode</label>
+            <select
+              id="input-mode"
+              name="input_mode"
+              class="form-control"
+              onchange="checkInputModeChange(event)"
+            >
+              <option value="direct">Direct</option>
+              <option value="indirect">With Button</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="temperature-source">Temperature Source</label>
+            <select
+              id="temperature-source"
+              name="temperature_source"
+              class="form-control"
+              onchange="checkInputChange(event)"
+            >
+              <option value="celcius">Celcius</option>
+              <option value="fahrenheit">Fahrenheit</option>
+              <option value="reaumur">Reaumur</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="temperature-target">Temperature Target</label>
+            <select
+              id="temperature-target"
+              name="temperature_target"
+              class="form-control"
+              onchange="checkInputChange(event)"
+            >
+              <option value="celcius">Celcius</option>
+              <option value="fahrenheit">Fahrenheit</option>
+              <option value="reaumur">Reaumur</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="temperature-input">Input</label>
+            <input
+              type="number"
+              class="form-control"
+              id="temperature-input"
+              name="temperature_input"
+              placeholder="Input temperature number here"
+              oninput="checkInputModeChangeDebounced(event)"
+            />
+          </div>
+          <button
+            id="temperature-submit"
+            type="submit"
+            class="btn btn-primary mb-2"
+            style="display: none"
+          >
+            =
+          </button>
+          <div class="form-group">
+            <label for="result">Result</label>
+            <input
+              class="form-control"
+              id="result"
+              name="result"
+              disabled
+              placeholder="Result"
+            />
+          </div>
+        </form>
+        <div class="form-group">
+          <label for="color-changer">Color Changer</label>
+          <input
+            class="form-control"
+            id="color-changer"
+            placeholder="Place your desired color here..."
+            onkeypress="colorChangeHandler(event)"
+          />
+        </div>
+      </div>
+    </div>
+    <script src="temperatureConverter.js"></script>
+    <script>
+      const inputModeDom = document.getElementById('input-mode');
+      const inputFormDom = document.getElementById(
+        'temperature-converter-form'
+      );
+      const submitDom = document.getElementById('temperature-submit');
+
+      const tempConv = new TemperatureConverter();
+      const tempResult = document.getElementById('result');
+
+      function getResult(from, to, x) {
+        tempResult.value = 'Getting result...';
+        tempConv
+          .getResult(from, to, x)
+          .then(function (result) {
+            tempResult.value = result;
+          })
+          .catch(function (err) {
+            tempResult.value = `Error: ${err.toString()}`;
+          });
+      }
+
+      function temperatureConvertFormInput(inputForm) {
+        const formValue = Object.fromEntries(new FormData(inputForm));
+
+        if (
+          !formValue['temperature_input'] &&
+          formValue['temperature_input'] !== 0
+        ) {
+          tempResult.value = '';
+        } else {
+          getResult(
+            formValue['temperature_source'],
+            formValue['temperature_target'],
+            Number(formValue['temperature_input'])
+          );
+        }
+      }
+
+      function temperatureConvertSubmit(e) {
+        e.preventDefault();
+
+        temperatureConvertFormInput(e.target);
+
+        return false;
+      }
+
+      function checkInputChange() {
+        const formValue = Object.fromEntries(new FormData(inputFormDom));
+
+        if (formValue['input_mode'] !== 'direct') {
+          return;
+        }
+
+        temperatureConvertFormInput(inputFormDom);
+      }
+
+      function checkInputModeChange() {
+        const formValue = Object.fromEntries(new FormData(inputFormDom));
+
+        if (formValue['input_mode'] === 'direct') {
+          submitDom.style.display = 'none';
+        } else {
+          submitDom.style.display = '';
+        }
+
+        checkInputChange();
+      }
+
+      function debounce(callback, wait, context = this) {
+        let timeout = null;
+        let callbackArgs = null;
+
+        const later = () => callback.apply(context, callbackArgs);
+
+        return function ({ id }) {
+          callbackArgs = arguments;
+          clearTimeout(timeout);
+          timeout = setTimeout(later, wait);
+        };
+      }
+
+      const checkInputModeChangeDebounced = debounce(function (event) {
+        checkInputModeChange(event);
+      }, 500);
+
+      function colorChangeHandler(e) {
+        if (e.keyCode === 13) {
+          e.preventDefault();
+
+          if (!CSS.supports('color', e.target.value)) {
+            alert('Your inputted color is invalid');
+            return;
+          }
+
+          document.body.style.backgroundColor = e.target.value;
+        }
+      }
+    </script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-U1DAWAznBHeqEIlVSCgzq+c9gqGAJn5c/t99JyeKa9xxaYpSvHU5awsuZVVFIhvj"
+      crossorigin="anonymous"
+    ></script>
+  </body>
+</html>
